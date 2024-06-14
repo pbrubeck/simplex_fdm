@@ -362,11 +362,6 @@ such that
    (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}, \quad
    \Phi^S_j\times\bn = 0 \text{ on }\partial S.
 \end{equation}
-On a 2D face $F$ (or the interior of a 2D cell),
-it is not necessary to solve for $\{\Phi^F_j\}$, as the degrees of freedom
-\eqref{eq:hcurl-interior-dofs} only involve the scalar-valued 
-$\curl_F\Phi^F_j$ which spans $\P_{p_F-1}(F)\setminus\P_0(F)$,
-hence the standard $\Ltwo$-orthogonal Dubiner basis may be used in place of $\curl_F\Phi^F_j$.
 
 
 \subsection{Sparsity-promoting basis for $\Hdiv$}
@@ -397,16 +392,20 @@ where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
    (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}, \quad
    \Psi^K_j\cdot\bn = 0 \text{ on }\partial K.
 \end{equation}
-It is not necessary to solve for $\{\Psi^K_j\}$, as the degrees of freedom
-\eqref{eq:hdiv-interior-dofs} only involve $\div\Psi^K_j$, 
-which spans $\P_{p-1}(K)\setminus\P_0(K)$. Hence the standard
-$\Ltwo$-orthogonal Dubiner basis may be used in place of $\div\Psi^K_j$.
+
 
 
 \subsection{Generally-mapped elements}
 
-The dual bases described above yield a sparse basis for $V^k_p(K)$ only
-if $K$ is equilateral.
+On an equilateral simplex, the interior block of the mass and stiffness matrices
+is fully diagonal, moreover the interior-interface blocks in the stiffness 
+vanish for generally mapped elements.
+
+The dual bases described above yield interior-orthogonal primal bases for $V^k_p(K)$ only
+if $K$ is equilateral. For generally mapped triangles, the spectral equivalence constant of
+a space decomposition that decouples the interior degrees of freedom should depend on how
+far the element departs from being equilateral, i.e., the shape regularity parameter. 
+
 
 
 \section{Space decompositions}
