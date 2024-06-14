@@ -301,9 +301,12 @@ We discretize $\Ltwo$-de Rham complex in triangular and tetrahedral meshes.
 \end{figure}
 
 
-We follow the definition of interpolation degrees of freedom from \cite{demkowicz00}
-to construct dual bases that promote orthgonality in the $\Ltwo(\Khat)$ and $H(\mathrm{d}, \Khat)$ inner
-products.
+We follow the definition of interpolation degrees of freedom from
+\cite{demkowicz00} to construct dual bases that promote orthogonality in the
+$\Ltwo(\Khat)$ and $H(\mathrm{d}, \Khat)$ inner products.
+
+We denote the space of polynomials with vanishing boundary trace as
+$\mathbb{B}_{p}(\mathrm{d}, K) = [\P_{p}(K)]^d \cap H_0(\mathrm{d}, K)$.
 
 \subsection{Sparsity-promoting basis for $\Hgrad$}
 
@@ -319,8 +322,7 @@ we take integral moments of surface gradients,
    \ell^S_j(v) = (\grad_S\phi^S_j, \grad_S v)_{S},
 \end{equation}
 where $\grad_S$ is the tangential gradient on $S$,
-and $\{\phi^S_j\}$ is a basis for
-$\P_{p,0}(S) = \{ v \in \P_p(S): v = 0 \text{ on } \partial S \}$, such that
+and $\{\phi^S_j\}$ is a basis for $\mathbb{B}_{p}(\grad, S)$, such that
 \begin{equation} \label{eq:hgrad-fdm}
    (\grad_S\phi^S_j, \grad_S\phi^S_i)_{S} = \delta_{ij}, \quad
    (\phi^S_j, \phi^S_i)_{S} = \lambda_j\delta_{ij}.
@@ -352,8 +354,8 @@ and for each sub-entity $S \in \text{faces}(\Delta^d) \cup \text{interior}(\Delt
 \end{align}
 where $\curl_S$ is the tangential curl on $S$,
 $\{\phi^S_j\}$ are the $H_0(\grad, S)$ bases constructed in \eqref{eq:hgrad-fdm},
-and $\{\curl_S\Phi^S_j\}$ is a basis for $\curl_S \mathbb{X}_{p_S}(S)$,
-$\mathbb{X}_{p_S}(S) = [\P_{p_S}(S)]^d \cap H_0(\curl, S)$, such that
+and $\{\curl_S\Phi^S_j\}$ is a basis for $\curl_S \mathbb{B}_{p_S}(\curl, S)$
+such that
 \begin{equation} \label{eq:hcurl-fdm}
    (\curl_S\Phi^S_j, \curl_S\Phi^S_i)_{S} = \delta_{ij}, \quad
    (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}, \quad
@@ -371,8 +373,8 @@ for $p_F=p-1$ we obtain the Raviart--Thomas space $\RT_p(K)$, while
 $p_F=p$ gives the Brezzi--Douglas--Marini space $\BDM_p(K) = [\P_p(K)]^d$. 
 These spaces enforce continuity of the normal trace across mesh interfaces.
 
-We define a basis for the dual of $V^2_{p, p_F}(K)$ as 
-normal moments on $F\in \text{faces}(\Delta^d)$,
+We define a basis for the dual of $V^2_{p, p_F}(K)$ as normal moments on $F\in
+\text{faces}(\Delta^d)$,
 \begin{equation}
    \ell^F_j(v) = (q_j, v\cdot \bn)_F, \quad q_j \in \P_{p_F}(F),
 \end{equation}
@@ -381,11 +383,11 @@ and on the $\text{interior}(\Delta^d) = K$:
    \ell^{K,0}_j(v) &= (\curl\Phi^K_j, v)_{K}, \\
    \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K},
 \end{align}
-where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in \eqref{eq:hcurl-fdm},
-and $\{\div\Psi^K_j\}$ is a basis for $\div \mathbb{Y}_p(K)$,
-$\mathbb{Y}_{p}(K) = [\mathbb{P}_p(K)]^d \cap H_0(\div,K)$, such that
+where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
+\eqref{eq:hcurl-fdm}, and $\{\div\Psi^K_j\}$ is a basis for $\div
+\mathbb{B}_p(\div, K)$ such that
 \begin{equation} \label{eq:hdiv-fdm}
-   (\div\Psi^K_j, \div\Psi^K_i)_{K} = \delta_{ij}, \quad
+   (\div\Psi^K_j, \div\Psi^K_i)_K = \delta_{ij}, \quad
    (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}, \quad
    \Psi^K_j\cdot\bn = 0 \text{ on }\partial K.
 \end{equation}
