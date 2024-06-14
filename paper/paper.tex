@@ -256,7 +256,7 @@ strategy by neglecting the interior-interface coupling. We precondition the
 interface Schur complement with the interface block, and simply apply
 point-Jacobi to precondition the interior block. The combination of this
 approach with a space decomposition method on small subdomains constructed
-around vertices, edges, and faces allows us to efficiently solve the
+around vertices and edges allows us to efficiently solve the
 canonical Riesz maps in $H(\mathrm{grad})$, $H(\mathrm{curl})$, and
 $H(\mathrm{div})$, at very high order. We empirically demonstrate iteration
 counts that are robust with respect to the polynomial degree. 
@@ -280,7 +280,7 @@ counts that are robust with respect to the polynomial degree.
 
 \section{Sparsity-promoting discretizations} \label{sec:dofs}
 
-We discretize $\Ltwo$-de Rham complex in triangular and tetrahedral meshes. 
+We discretize $\Ltwo$-de Rham complex on triangular and tetrahedral meshes. 
 
 \begin{figure}[htbp] 
 \centering
@@ -333,7 +333,7 @@ on the reference interval, triangle, and tetrahedron.
 
 \subsection{Sparsity-promoting basis for $\Hcurl$}
 
-Recall the definition of the $\Hcurl$-confroming finite element spaces
+Recall the definition of the $\Hcurl$-conforming finite element spaces
 \begin{equation}
 V^1_{p, p_E}(K) = \{v\in [\P_p(K)]^d : v\cdot\bt \in \P_{p_E}(E) \}
 \end{equation}
@@ -350,7 +350,7 @@ tangential moments along $E\in \text{edges}(\Delta^d)$,
 and for each sub-entity $S \in \text{faces}(\Delta^d) \cup \text{interior}(\Delta^d)$,
 \begin{align}
    \ell^{S,0}_j(v) &= (\grad_S\phi^S_j, v)_{S}, \\
-   \ell^{S,1}_j(v) &= (\curl_S\Phi^S_j, \curl_S v)_{S},
+   \ell^{S,1}_j(v) &= (\curl_S\Phi^S_j, \curl_S v)_{S}, \label{eq:hcurl-interior-dofs}
 \end{align}
 where $\curl_S$ is the tangential curl on $S$,
 $\{\phi^S_j\}$ are the $H_0(\grad, S)$ bases constructed in \eqref{eq:hgrad-fdm},
@@ -361,11 +361,16 @@ such that
    (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}, \quad
    \Phi^S_j\times\bn = 0 \text{ on }\partial S.
 \end{equation}
+On a 2D face $F$ (or the interior of a 2D cell),
+it is not necessary to solve for $\{\Phi^F_j\}$, as the degrees of freedom
+\eqref{eq:hcurl-interior-dofs} only involve the scalar-valued 
+$\curl_F\Phi^F_j$ which spans $\P_{p_F-1}(F)\setminus\P_0(F)$,
+hence the standard $\Ltwo$-orthogonal Dubiner basis may be used in place of $\curl_F\Phi^F_j$.
 
 
 \subsection{Sparsity-promoting basis for $\Hdiv$}
 
-Recall the definition of the $\Hdiv$-confroming finite element spaces
+Recall the definition of the $\Hdiv$-conforming finite element spaces
 \begin{equation}
 V^2_{p, p_F}(K) = \{v\in [\P_p(K)]^d : v\cdot\bn \in \P_{p_F}(F) \}
 \end{equation}
@@ -381,7 +386,7 @@ We define a basis for the dual of $V^2_{p, p_F}(K)$ as normal moments on $F\in
 and on the $\text{interior}(\Delta^d) = K$: 
 \begin{align}
    \ell^{K,0}_j(v) &= (\curl\Phi^K_j, v)_{K}, \\
-   \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K},
+   \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K}, \label{eq:hdiv-interior-dofs}
 \end{align}
 where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
 \eqref{eq:hcurl-fdm}, and $\{\div\Psi^K_j\}$ is a basis for $\div
@@ -391,6 +396,16 @@ where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
    (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}, \quad
    \Psi^K_j\cdot\bn = 0 \text{ on }\partial K.
 \end{equation}
+It is not necessary to solve for $\{\Psi^K_j\}$, as the degrees of freedom
+\eqref{eq:hdiv-interior-dofs} only involve $\div\Psi^K_j$, 
+which spans $\P_{p-1}(K)\setminus\P_0(K)$. Hence the standard
+$\Ltwo$-orthogonal Dubiner basis may be used in place of $\div\Psi^K_j$.
+
+
+\subsection{Generally-mapped elements}
+
+The dual bases described above yield a sparse basis for $V^k_p(K)$ only
+if $K$ is equilateral.
 
 
 \section{Space decompositions}
@@ -398,7 +413,7 @@ where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
 
 We follow 
 the low-order space decompositions studied in \cite{arnold00}
-and extend them to the high-order with static-condensation. 
+and extend them to high-order with static-condensation. 
 
 For 0-forms we construct patches on vertex-stars,
 \begin{equation}
