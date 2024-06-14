@@ -122,6 +122,7 @@
 \newcommand{\be}{\vec{e}}
 \newcommand{\bu}{\vec{u}}
 \newcommand{\bn}{\vec{n}}
+\newcommand{\bt}{\vec{t}}
 \newcommand{\bm}{\vec{m}}
 \newcommand{\bv}{\vec{v}}
 \renewcommand{\bf}{\vec{f}}
@@ -177,14 +178,15 @@
 
 \renewcommand{\P}{\mathrm{P}}
 \newcommand{\DP}{\mathrm{DP}}
-\newcommand{\Q}{\mathrm{Q}}
-\newcommand{\DQ}{\mathrm{DQ}}
-\newcommand{\RTCF}{\mathrm{RTCF}}
-\newcommand{\RTCE}{\mathrm{RTCE}}
-\newcommand{\NCF}{\mathrm{NCF}}
-\newcommand{\NCE}{\mathrm{NCE}}
+\newcommand{\CG}{\mathrm{CG}}
+\newcommand{\DG}{\mathrm{DG}}
+\newcommand{\Ned}{\mathrm{Ned}^{1}}
+\newcommand{\RT}{\mathrm{RT}}
+\newcommand{\BDM}{\mathrm{BDM}}
+\newcommand{\NedTwo}{\mathrm{Ned}^{2}}
 
 
+\newcommand{\Nedelec}{Ned\'el\'ec~}
 
 %\newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
@@ -196,7 +198,7 @@
 
 \title{
    Fast solvers for the high-order FEM simplicial de Rham complex
-\thanks{Submitted to the editors XX/YY/2024.
+\thanks{Submitted to the editors July XX, 2024.
       \funding{
          PDB and PEF were supported by EPSRC grant EP/W026260/1.
       }
@@ -212,7 +214,13 @@ Oxford, UK (\email{brubeckmarti@maths.ox.ac.uk})
 \and Patrick E.\ Farrell\thanks{
 Mathematical Institute,
 University of Oxford,
-Oxford UK (\email{patrick.farrell@maths.ox.ac.uk})
+Oxford, UK (\email{patrick.farrell@maths.ox.ac.uk})
+%\orcid{0000-0002-1241-7060}
+}
+\and Robert C.\ Kirby\thanks{
+Department of Mathematics,
+Baylor University,
+Waco, TX, USA (\email{robert\_kirby@baylor.edu})
 %\orcid{0000-0002-1241-7060}
 }
 }
@@ -225,7 +233,33 @@ Oxford UK (\email{patrick.farrell@maths.ox.ac.uk})
 \maketitle
 
 \begin{abstract}
-This is the abstract.
+We present new high-order finite elements discretizing the $L^2$ de Rham
+complex on triangular and tetrahedral meshes. The finite elements discretize
+the same spaces as usual, but with different basis functions. They allow for
+fast linear solvers based on static condensation and space decomposition
+methods. The new elements build upon the definition of degrees of freedom
+given in L.~Demkowicz, P.~Monk, L.~Vardapetyan, and W.~Rachowicz.~
+\textit{De Rham diagram for $hp$ finite element spaces}. Comput.~Math.~Appl.,
+39(7-8):29--38, 2000., and consist of integral moments
+on an equilateral reference simplex with respect to a numerically computed
+polynomial basis that is orthogonal in both the $L^2$- and
+$H(\mathrm{d})$-inner products ($\mathrm{d} \in \{\mathrm{grad},
+\mathrm{curl}, \mathrm{div}\}$). On the reference equilateral simplex, the
+resulting stiffness matrix has diagonal interior block, and does not couple
+together the interior and interface degrees of freedom. Thus, on the
+reference simplex, the Schur complement resulting from elimination of
+interior degrees of freedom is simply the interface block itself. This
+sparsity is not preserved on arbitrary cells mapped from the reference cell.
+Nevertheless, the interior-interface coupling is weak because it is only
+induced by the geometric transformation. We devise a preconditioning
+strategy by neglecting the interior-interface coupling. We precondition the
+interface Schur complement with the interface block, and simply apply
+point-Jacobi to precondition the interior block. The combination of this
+approach with a space decomposition method on small subdomains constructed
+around vertices, edges, and faces allows us to efficiently solve the
+canonical Riesz maps in $H(\mathrm{grad})$, $H(\mathrm{curl})$, and
+$H(\mathrm{div})$, at very high order. We empirically demonstrate iteration
+counts that are robust with respect to the polynomial degree. 
 \end{abstract}
 
 \begin{keywords}
@@ -243,9 +277,169 @@ This is the abstract.
 \section{Introduction} \label{sec:introduction}
 
 
+
+\section{Sparsity-promoting discretizations} \label{sec:dofs}
+
+We discretize $\Ltwo$-de Rham complex in triangular and tetrahedral meshes. 
+
+\begin{figure}[htbp] 
+\centering
+\begin{tikzcd}
+  \Hgrad \arrow[r, "\grad"] \arrow[d]  & \Hcurl \arrow[r, "\curl"]
+  \arrow[d] & \Hdiv \arrow[r, "\div"]  \arrow[d] & \Ltwo  \arrow[d] \\
+  \CG_p \arrow[r, "\grad"] & \Ned_p \arrow[r, "\curl"] & 
+   \RT_p \arrow[r, "\div"] & \DG_{p-1}
+\end{tikzcd}
+
+\begin{tikzcd}
+  \Hgrad \arrow[r, "\grad"] \arrow[d]  & \Hcurl \arrow[r, "\curl"]
+  \arrow[d] & \Hdiv \arrow[r, "\div"]  \arrow[d] & \Ltwo  \arrow[d] \\
+   \CG_p \arrow[r, "\grad"] & \NedTwo_{p-1} \arrow[r, "\curl"] & 
+   \BDM_{p-2} \arrow[r, "\div"] & \DG_{p-3}
+\end{tikzcd}
+\caption{The $\Ltwo$-de Rham complex, and the finite element subcomplexes of the first and second kind.}
+\end{figure}
+
+
+We follow the definition of interpolation degrees of freedom from \cite{demkowicz00}
+to construct dual bases that promote orthgonality in the $\Ltwo(\Khat)$ and $H(\mathrm{d}, \Khat)$ inner
+products.
+
+\subsection{Sparsity-promoting basis for $\Hgrad$}
+
+Let $\Delta^d$ be the equilateral $d$-simplex.
+We define a basis for the dual of $\CG_p$ as 
+point evaluations at $V \in \text{vertices}(\Delta^d)$,
+\begin{equation}
+   \ell^V(v) = v(\bx_V),
+\end{equation}
+and for each sub-entity $S \in \text{edges}(\Delta^d) \cup \text{faces}(\Delta^d) \cup \text{interior}(\Delta^d)$
+we take integral moments of surface gradients, 
+\begin{equation}
+   \ell^S_j(v) = (\grad_S\phi^S_j, \grad_S v)_{S},
+\end{equation}
+where $\grad_S$ is the tangential gradient on $S$,
+and $\{\phi^S_j\}$ is a basis for
+$\P_{p,0}(S) = \{ v \in \P_p(S): v = 0 \text{ on } \partial S \}$, such that
+\begin{equation} \label{eq:hgrad-fdm}
+   (\grad_S\phi^S_j, \grad_S\phi^S_i)_{S} = \delta_{ij}, \quad
+   (\phi^S_j, \phi^S_i)_{S} = \lambda_j\delta_{ij}.
+\end{equation}
+The eigenbases $\{\phi^S_j\}$ are numerically computed offline and only once 
+on the reference interval, triangle, and tetrahedron.
+
+
+\subsection{Sparsity-promoting basis for $\Hcurl$}
+
+Recall the definition of the $\Hcurl$-confroming finite element spaces
+\begin{equation}
+V^1_{p, p_E}(K) = \{v\in [\P_p(K)]^d : v\cdot\bt \in \P_{p_E}(E) \}
+\end{equation}
+for $p_E=p-1$ we obtain the \Nedelec space of the first kind $\Ned_p(K)$, while
+$p_E=p$ gives the \Nedelec space of the second kind $\NedTwo_p(K) = [\P_p(K)]^d$. 
+These spaces enforce continuity of the tangential trace across mesh interfaces.
+
+
+We define a basis for the dual of $V^1_{p, p_E}(K)$ as 
+tangential moments along $E\in \text{edges}(\Delta^d)$,
+\begin{equation}
+   \ell^E_j(v) = (q_j, v\cdot \bt)_E, \quad q_j \in \P_{p_E}(E), 
+\end{equation}
+and for each sub-entity $S \in \text{faces}(\Delta^d) \cup \text{interior}(\Delta^d)$,
+\begin{align}
+   \ell^{S,0}_j(v) &= (\grad_S\phi^S_j, v)_{S}, \\
+   \ell^{S,1}_j(v) &= (\curl_S\Phi^S_j, \curl_S v)_{S},
+\end{align}
+where $\curl_S$ is the tangential curl on $S$,
+$\{\phi^S_j\}$ are the $H_0(\grad, S)$ bases constructed in \eqref{eq:hgrad-fdm},
+and $\{\curl_S\Phi^S_j\}$ is a basis for $\curl_S \mathbb{X}_{p_S}(S)$,
+$\mathbb{X}_{p_S}(S) = [\P_{p_S}(S)]^d \cap H_0(\curl, S)$, such that
+\begin{equation} \label{eq:hcurl-fdm}
+   (\curl_S\Phi^S_j, \curl_S\Phi^S_i)_{S} = \delta_{ij}, \quad
+   (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}, \quad
+   \Phi^S_j\times\bn = 0 \text{ on }\partial S.
+\end{equation}
+
+
+\subsection{Sparsity-promoting basis for $\Hdiv$}
+
+Recall the definition of the $\Hdiv$-confroming finite element spaces
+\begin{equation}
+V^2_{p, p_F}(K) = \{v\in [\P_p(K)]^d : v\cdot\bn \in \P_{p_F}(F) \}
+\end{equation}
+for $p_F=p-1$ we obtain the Raviart--Thomas space $\RT_p(K)$, while
+$p_F=p$ gives the Brezzi--Douglas--Marini space $\BDM_p(K) = [\P_p(K)]^d$. 
+These spaces enforce continuity of the normal trace across mesh interfaces.
+
+We define a basis for the dual of $V^2_{p, p_F}(K)$ as 
+normal moments on $F\in \text{faces}(\Delta^d)$,
+\begin{equation}
+   \ell^F_j(v) = (q_j, v\cdot \bn)_F, \quad q_j \in \P_{p_F}(F),
+\end{equation}
+and on the $\text{interior}(\Delta^d) = K$: 
+\begin{align}
+   \ell^{K,0}_j(v) &= (\curl\Phi^K_j, v)_{K}, \\
+   \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K},
+\end{align}
+where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in \eqref{eq:hcurl-fdm},
+and $\{\div\Psi^K_j\}$ is a basis for $\div \mathbb{Y}_p(K)$,
+$\mathbb{Y}_{p}(K) = [\mathbb{P}_p(K)]^d \cap H_0(\div,K)$, such that
+\begin{equation} \label{eq:hdiv-fdm}
+   (\div\Psi^K_j, \div\Psi^K_i)_{K} = \delta_{ij}, \quad
+   (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}, \quad
+   \Psi^K_j\cdot\bn = 0 \text{ on }\partial K.
+\end{equation}
+
+
+\section{Space decompositions}
+
+
+We follow 
+the low-order space decompositions studied in \cite{arnold00}
+and extend them to the high-order with static-condensation. 
+
+For 0-forms we construct patches on vertex-stars,
+\begin{equation}
+   V^0_{h,p} = \left.V^0_{h,p}\right|_\mathcal{I} + V^0_{h,1} 
+   + \sum_{v\in E^0(\mesh)} \left.\tilde{V}^0_{h,p}\right|_{\star v} 
+\end{equation}
+
+For 1-forms we construct edge-star patches
+plus the gradient of vertex-star patches on 0-forms
+\begin{equation}
+   V^1_{h,p} = \left.V^1_{h,p}\right|_\mathcal{I} +  V^1_{h,1}
+   + \sum_{e\in E^1(\mesh)} \left.\tilde{V}^1_{h,p}\right|_{\star e} 
+   + \sum_{v\in E^0(\mesh)} \mathrm{d} \left.\tilde{V}^0_{h,p}\right|_{\star v} 
+\end{equation}
+
+For 2-forms we construct edge-star patches,
+\begin{equation}
+   V^2_{h,p} = \left.V^2_{h,p}\right|_\mathcal{I} +  V^2_{h,1} 
+   + \sum_{e\in E^1(\mesh)} \left.\tilde{V}^2_{h,p}\right|_{\star e}. 
+\end{equation}
+
+
+
+\section{Numerical results} \label{sec:results}
+
+\subsection{Unit cube tests}
+Here we want to address questions about $h$ and $p$ robustness of the space
+decomposition. Also how does this method compare with other standard bases in
+terms of not only of runtime, memory, and FLOPs, but also conditioning, and
+approximation error.
+
+\subsection{Mixed Poisson}
+Is there a substantial advantage in the first order reformulation of Poisson solved
+with a block Riesz map preconditioner over the $C^0$ formulation?
+Since the normal trace of the $\Hdiv$ space is just a scalar, we expect that the
+statically-condensed edge patches should couple fewer cells.
+
+
+\subsection{Complicated geometries and adaptive mesh refinement}
+How does the solver perform on complicated and adaptively-refined meshes?
+
+
 \section{Conclusion} \label{sec:conclusion}
-
-
 
 
 
