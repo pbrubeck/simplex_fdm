@@ -1,0 +1,254 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[review,onefignum,onetabnum,a4paper]{siamart190516}
+\pdfoutput=1
+\overfullrule=0pt
+
+%------------------------------------------------------------------------------
+% Header
+%------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath, amssymb, gensymb, physics, upgreek, siunitx, bbm}
+\usepackage{tikz, pgfplots, graphicx, epstopdf, float, hyperref, xspace}
+\usepackage[caption=false]{subfig}
+\usepackage{enumitem, verbatim, listings}
+\usepackage{mathtools, stmaryrd}
+\usepackage{booktabs, array, ragged2e}
+\usepackage[export]{adjustbox}
+\usepackage{cleveref}
+
+\sisetup{table-number-alignment=center, exponent-product=\times}
+\newcommand{\crefrangeconjunction}{--}
+
+\usetikzlibrary{trees, cd, babel}
+\graphicspath{{./figures}}
+\epstopdfsetup{outdir=./}
+
+\lstset{basicstyle=\footnotesize\ttfamily}
+
+\definecolor{paired1}{HTML}{a6cee3}
+\definecolor{paired2}{HTML}{1f78b4}
+\definecolor{paired3}{HTML}{b2df8a}
+\definecolor{paired4}{HTML}{33a02c}
+\definecolor{paired5}{HTML}{fb9a99}
+\definecolor{paired6}{HTML}{e31a1c}
+\definecolor{paired7}{HTML}{fdbf6f}
+\definecolor{paired8}{HTML}{ff7f00}
+\definecolor{paired9}{HTML}{cab2d6}
+\definecolor{paired10}{HTML}{6a3d9a}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\pgfplotsset{
+  log x ticks with fixed point/.style={
+      xticklabel={
+        \pgfkeys{/pgf/fpu=true}
+        \pgfmathparse{exp(\tick)}%
+        \pgfmathprintnumber[fixed relative, precision=3]{\pgfmathresult}
+        \pgfkeys{/pgf/fpu=false}
+      }
+  },
+  log y ticks with fixed point/.style={
+      yticklabel={
+        \pgfkeys{/pgf/fpu=true}
+        \pgfmathparse{exp(\tick)}%
+        \pgfmathprintnumber[fixed relative, precision=3]{\pgfmathresult}
+        \pgfkeys{/pgf/fpu=false}
+      }
+  }
+}
+
+% Classic symbols
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\integers}{\mathbb{Z}}
+\newcommand{\dx}{\,\d\mathbf{x}}
+\newcommand{\md}{\,\d}
+\newcommand{\bigo}[1]{\mathcal{O}(#1)}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\let\grad\undefined
+\let\curl\undefined
+\let\div\undefined
+\let\nullop\undefined
+\let\d\undefined
+\let\tr\undefined
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\div}{div}
+\DeclareMathOperator{\nullop}{null}
+\DeclareMathOperator{\d}{d}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\Exists}{\exists}
+\DeclareMathOperator{\Forall}{\forall}
+
+\DeclareMathOperator{\refgrad}{\widehat{\grad}}
+\DeclareMathOperator{\refcurl}{\widehat{\curl}}
+\DeclareMathOperator{\refdiv}{\widehat{\div}}
+
+\newcommand{\Hgrad}{H(\grad)}
+\newcommand{\Hcurl}{H(\curl)}
+\newcommand{\Hdiv}{H(\div)}
+\newcommand{\Ltwo}{L^2}
+
+
+\newcommand{\mesh}{\mathcal{T}_h}
+\newcommand{\skeleton}{\mathcal{E}_h}
+\newcommand{\refline}{\hat{\mathcal{I}}}
+\newcommand{\jac}{\mathrm{D}F}
+\newcommand{\pullback}{\mathcal{F}}
+\newcommand{\betah}{\tilde{\beta}}
+
+% Vector notation
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\uvec}[1]{\mathbf{\hat{#1}}}
+\newcommand{\conj}[1]{{\overline{#1}}}
+\DeclareMathOperator{\blockdiag}{blockdiag}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\vecop}{vec}
+\newcommand{\eye}{{\mathbb{I}}}
+\newcommand{\kron}{\otimes}
+\newcommand{\jump}[1]{\left\llbracket #1 \right\rrbracket}
+\newcommand{\avg}[1]{\left\{ #1 \right\}}
+\newcommand{\broken}[1]{\tilde{#1}}
+
+
+\newcommand{\be}{\vec{e}}
+\newcommand{\bu}{\vec{u}}
+\newcommand{\bn}{\vec{n}}
+\newcommand{\bm}{\vec{m}}
+\newcommand{\bv}{\vec{v}}
+\renewcommand{\bf}{\vec{f}}
+\newcommand{\bq}{\vec{q}}
+\newcommand{\br}{\vec{r}}
+\newcommand{\bx}{\vec{x}}
+\newcommand{\bw}{\vec{w}}
+\newcommand{\by}{\vec{y}}
+\newcommand{\bz}{\vec{z}}
+\newcommand{\bB}{\vec{B}}
+\newcommand{\bC}{\vec{C}}
+\newcommand{\bE}{\vec{E}}
+\newcommand{\bF}{\vec{F}}
+\newcommand{\bJ}{\vec{J}}
+\newcommand{\bP}{\vec{P}}
+\newcommand{\bT}{\vec{T}}
+\newcommand{\bX}{\vec{X}}
+
+\newcommand{\ub}{\underline{b}}
+\newcommand{\uc}{\underline{c}}
+\newcommand{\ue}{\underline{e}}
+\newcommand{\uf}{\underline{f}}
+\newcommand{\ug}{\underline{g}}
+\newcommand{\up}{\underline{p}}
+\newcommand{\uq}{\underline{q}}
+\newcommand{\ur}{\underline{r}}
+\newcommand{\uu}{\underline{u}}
+\newcommand{\uv}{\underline{v}}
+\newcommand{\uw}{\underline{w}}
+\newcommand{\ux}{\underline{x}}
+\newcommand{\uy}{\underline{y}}
+\newcommand{\uz}{\underline{z}}
+\newcommand{\ut}{\underline{t}}
+\newcommand{\ulambda}{\underline{\lambda}}
+
+\newcommand{\uB}{\underline{B}}
+\newcommand{\ubb}{\underline{\vec{b}}}
+\newcommand{\ubq}{\underline{\vec{q}}}
+\newcommand{\ubu}{\underline{\vec{u}}}
+\newcommand{\ubv}{\underline{\vec{v}}}
+\newcommand{\ubf}{\underline{\vec{f}}}
+\newcommand{\ubg}{\underline{\vec{g}}}
+
+\newcommand{\xhat}{\hat{x}}
+\newcommand{\rhat}{\hat{r}}
+\newcommand{\shat}{\hat{s}}
+\newcommand{\Khat}{\hat{K}}
+\newcommand{\Bhat}{\hat{B}}
+\newcommand{\Ahat}{\hat{A}}
+\newcommand{\Dhat}{\hat{D}}
+\newcommand{\Shat}{\hat{S}}
+\newcommand{\Ghat}{\hat{G}}
+
+\renewcommand{\P}{\mathrm{P}}
+\newcommand{\DP}{\mathrm{DP}}
+\newcommand{\Q}{\mathrm{Q}}
+\newcommand{\DQ}{\mathrm{DQ}}
+\newcommand{\RTCF}{\mathrm{RTCF}}
+\newcommand{\RTCE}{\mathrm{RTCE}}
+\newcommand{\NCF}{\mathrm{NCF}}
+\newcommand{\NCE}{\mathrm{NCE}}
+
+
+
+%\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+
+
+%------------------------------------------------------------------------------
+% Document
+%------------------------------------------------------------------------------
+
+\title{
+   Fast solvers for the high-order FEM simplicial de Rham complex
+\thanks{Submitted to the editors XX/YY/2024.
+      \funding{
+         PDB and PEF were supported by EPSRC grant EP/W026260/1.
+      }
+   }
+}
+
+\author{Pablo D.\ Brubeck\thanks{
+Mathematical Institute,
+University of Oxford,
+Oxford, UK (\email{brubeckmarti@maths.ox.ac.uk})
+%\orcid{0000-0002-3824-0080}
+}
+\and Patrick E.\ Farrell\thanks{
+Mathematical Institute,
+University of Oxford,
+Oxford UK (\email{patrick.farrell@maths.ox.ac.uk})
+%\orcid{0000-0002-1241-7060}
+}
+}
+
+\headers{Patch solvers for simplicial $p$-FEM}{P.~D.~Brubeck and P.~E.~Farrell and R.~C.~Kirby}
+
+\begin{document}
+
+\numberwithin{equation}{section}
+\maketitle
+
+\begin{abstract}
+This is the abstract.
+\end{abstract}
+
+\begin{keywords}
+   preconditioning, de Rham complex, simplex, high-order, additive Schwarz
+\end{keywords}
+
+\begin{AMS}
+   65F08, 65N35, 65N55
+\end{AMS}
+
+%\begin{DOI}
+%10.1137/21XXXXXXX
+%\end{DOI}
+
+\section{Introduction} \label{sec:introduction}
+
+
+\section{Conclusion} \label{sec:conclusion}
+
+
+
+
+
+\bibliographystyle{siamplain}
+\bibliography{references}
+\end{document}
