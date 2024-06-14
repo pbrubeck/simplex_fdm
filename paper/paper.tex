@@ -238,13 +238,14 @@ complex on triangular and tetrahedral meshes. The finite elements discretize
 the same spaces as usual, but with different basis functions. They allow for
 fast linear solvers based on static condensation and space decomposition
 methods. The new elements build upon the definition of degrees of freedom
-given in L.~Demkowicz, P.~Monk, L.~Vardapetyan, and W.~Rachowicz.~
-\textit{De Rham diagram for $hp$ finite element spaces}. Comput.~Math.~Appl.,
-39(7-8):29--38, 2000., and consist of integral moments
+given in [L.~Demkowicz, P.~Monk, L.~Vardapetyan, and W.~Rachowicz,
+Comput.~Math.~Appl.,
+39(7-8) (2000), pp.~29--38], and consist of integral moments
 on an equilateral reference simplex with respect to a numerically computed
 polynomial basis that is orthogonal in both the $L^2$- and
 $H(\mathrm{d})$-inner products ($\mathrm{d} \in \{\mathrm{grad},
-\mathrm{curl}, \mathrm{div}\}$). On the reference equilateral simplex, the
+\mathrm{curl}, \mathrm{div}\}$). 
+On the reference equilateral simplex, the
 resulting stiffness matrix has diagonal interior block, and does not couple
 together the interior and interface degrees of freedom. Thus, on the
 reference simplex, the Schur complement resulting from elimination of
@@ -413,7 +414,7 @@ if $K$ is equilateral.
 
 We follow 
 the low-order space decompositions studied in \cite{arnold00}
-and extend them to high-order with static-condensation. 
+and extend them to high-order with static-condensation.
 
 For 0-forms we construct patches on vertex-stars,
 \begin{equation}
