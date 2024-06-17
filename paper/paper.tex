@@ -16,6 +16,7 @@
 \usepackage{booktabs, array, ragged2e}
 \usepackage[export]{adjustbox}
 \usepackage{cleveref}
+\usepackage{todonotes}
 
 \sisetup{table-number-alignment=center, exponent-product=\times}
 \newcommand{\crefrangeconjunction}{--}
@@ -188,6 +189,8 @@
 
 \newcommand{\Nedelec}{Ned\'el\'ec~}
 
+\newcommand{\pef}[1]{\todo[inline,color=blue!40]{PEF: \#1}}
+
 %\newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
 
@@ -260,7 +263,8 @@ approach with a space decomposition method on small subdomains constructed
 around vertices and edges allows us to efficiently solve the
 canonical Riesz maps in $H(\mathrm{grad})$, $H(\mathrm{curl})$, and
 $H(\mathrm{div})$, at very high order. We empirically demonstrate iteration
-counts that are robust with respect to the polynomial degree. 
+counts that are robust with respect to the polynomial degree, with a computational complexity of $\mathcal{O}(p^{6})$ flops in three dimensions
+instead of the na\"ive $\mathcal{O}(p^{9})$.
 \end{abstract}
 
 \begin{keywords}
@@ -281,24 +285,19 @@ counts that are robust with respect to the polynomial degree.
 
 \section{Sparsity-promoting discretizations} \label{sec:dofs}
 
-We discretize $\Ltwo$-de Rham complex on triangular and tetrahedral meshes. 
+We discretize the $\Ltwo$ de Rham complex on triangular and tetrahedral meshes with finite element subcomplexes of the first and second kinds.
 
 \begin{figure}[htbp] 
 \centering
 \begin{tikzcd}
-  \Hgrad \arrow[r, "\grad"] \arrow[d]  & \Hcurl \arrow[r, "\curl"]
-  \arrow[d] & \Hdiv \arrow[r, "\div"]  \arrow[d] & \Ltwo  \arrow[d] \\
   \CG_p \arrow[r, "\grad"] & \Ned_p \arrow[r, "\curl"] & 
-   \RT_p \arrow[r, "\div"] & \DG_{p-1}
-\end{tikzcd}
-
-\begin{tikzcd}
-  \Hgrad \arrow[r, "\grad"] \arrow[d]  & \Hcurl \arrow[r, "\curl"]
-  \arrow[d] & \Hdiv \arrow[r, "\div"]  \arrow[d] & \Ltwo  \arrow[d] \\
+   \RT_p \arrow[r, "\div"] & \DG_{p-1} \\
+  \Hgrad \arrow[r, "\grad"] \arrow[u] \arrow[d]  & \Hcurl \arrow[r, "\curl"]
+  \arrow[d] \arrow[u] & \Hdiv \arrow[r, "\div"] \arrow[u] \arrow[d] & \Ltwo \arrow[u] \arrow[d] \\
    \CG_p \arrow[r, "\grad"] & \NedTwo_{p-1} \arrow[r, "\curl"] & 
    \BDM_{p-2} \arrow[r, "\div"] & \DG_{p-3}
 \end{tikzcd}
-\caption{The $\Ltwo$-de Rham complex, and the finite element subcomplexes of the first and second kind.}
+\caption{The $\Ltwo$-de Rham complex (middle), and the finite element subcomplexes of the first (above) and second kinds (below).}
 \end{figure}
 
 
