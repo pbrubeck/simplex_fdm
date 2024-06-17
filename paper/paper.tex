@@ -71,6 +71,7 @@
 \newcommand{\md}{\,\d}
 \newcommand{\bigo}[1]{\mathcal{O}(#1)}
 \DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\union}{\cup}
 
 
 \let\grad\undefined
@@ -189,7 +190,7 @@
 
 \newcommand{\Nedelec}{Ned\'el\'ec~}
 
-\newcommand{\pef}[1]{\todo[inline,color=blue!40]{PEF: \#1}}
+\newcommand{\pef}[1]{\todo[inline,color=blue!40]{PEF: #1}}
 
 %\newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
@@ -297,32 +298,47 @@ We discretize the $\Ltwo$ de Rham complex on triangular and tetrahedral meshes w
    \CG_p \arrow[r, "\grad"] & \NedTwo_{p-1} \arrow[r, "\curl"] & 
    \BDM_{p-2} \arrow[r, "\div"] & \DG_{p-3}
 \end{tikzcd}
-\caption{The $\Ltwo$-de Rham complex (middle), and the finite element subcomplexes of the first (above) and second kinds (below).}
+\caption{The $\Ltwo$ de Rham complex (middle), and the finite element subcomplexes of the first (above) and second kinds (below).}
 \end{figure}
+\pef{Fix vertical alignment}
 
+For each finite element subcomplex built on a mesh $\mesh$ of a domain $\Omega \subset \mathbb{R}^d$, we denote the spaces discretizing $k$-forms $H\Lambda^k(\Omega)$ with polynomial degree $p$ as $X^k_p(\mesh)$.
+These are built from cellwise spaces via the standard pullback construction from a reference cell $\Khat$:
+\begin{equation}
+X^k_p(\mesh) = \{ v \in H\Lambda^k(\Omega): \Forall K \in \mesh \Exists \hat{v} \in X^k_p(\Khat) \text{ s.t.} \left.v\right|_K = \pullback^k_K(\hat{v}) \},
+\end{equation}
+where $\pullback^k_K$ denotes the appropriate pullback that preserves continuity of the traces of a $k$-form across cell facets.
 
 We follow the definition of interpolation degrees of freedom from
-\cite{demkowicz00} to construct dual bases that promote orthogonality in the
+Demkowicz et al.~\cite{demkowicz00} to construct dual bases that promote orthogonality in the
 $\Ltwo(\Khat)$ and $H(\mathrm{d}, \Khat)$ inner products.
+In the construction of the degrees of freedom we will employ bubble subspaces on a given mesh entity $S \subset \Khat$ with zero trace, defined as
+\begin{equation}
+B^k_p(S) \coloneqq \{v \in X^k_p(S): \tr v = 0 \text{ on } \partial S\}.
+\end{equation}
 
-We denote the space of polynomials with vanishing boundary trace as
-$\mathbb{B}_{p}(\mathrm{d}, K) = [\P_{p}(K)]^d \cap H_0(\mathrm{d}, K)$.
+Throughout we choose $\Khat$ to be an equilateral simplex, as this ...
 
 \subsection{Sparsity-promoting basis for $\Hgrad$}
 
-Let $\Delta^d$ be the equilateral $d$-simplex.
-We define a basis for the dual of $\CG_p$ as 
-point evaluations at $V \in \text{vertices}(\Delta^d)$,
+On $\Khat$ we discretize $\Hgrad$ with the space
 \begin{equation}
-   \ell^V(v) = v(\bx_V),
+X^0_{p}(\Khat) = \P_p(\Khat),
 \end{equation}
-and for each sub-entity $S \in \text{edges}(\Delta^d) \cup \text{faces}(\Delta^d) \cup \text{interior}(\Delta^d)$
+where $\P_p(\Khat)$ is the space of polynomials of total degree less than or equal to $p$.
+We define a basis for the dual of $X^0_p(\Khat)$ as
+point evaluations at $V \in \text{vertices}(\Khat)$,
+\begin{equation}
+   \ell^V(v) = v(V),
+\end{equation}
+and for each sub-entity $S \in \text{edges}(\Khat) \union \text{faces}(\Khat) \union \text{interior}(\Khat)$
 we take integral moments of surface gradients, 
 \begin{equation}
    \ell^S_j(v) = (\grad_S\phi^S_j, \grad_S v)_{S},
 \end{equation}
 where $\grad_S$ is the tangential gradient on $S$,
-and $\{\phi^S_j\}$ is a basis for $\mathbb{B}_{p}(\grad, S)$, such that
+and $\{\phi^S_j\}$ is a basis for $B^0_p(S)$
+such that
 \begin{equation} \label{eq:hgrad-fdm}
    (\grad_S\phi^S_j, \grad_S\phi^S_i)_{S} = \delta_{ij}, \quad
    (\phi^S_j, \phi^S_i)_{S} = \lambda_j\delta_{ij}.
@@ -343,11 +359,11 @@ These spaces enforce continuity of the tangential trace across mesh interfaces.
 
 
 We define a basis for the dual of $V^1_{p, p_E}(K)$ as 
-tangential moments along $E\in \text{edges}(\Delta^d)$,
+tangential moments along $E\in \text{edges}(\Khat)$,
 \begin{equation}
    \ell^E_j(v) = (q_j, v\cdot \bt)_E, \quad q_j \in \P_{p_E}(E), 
 \end{equation}
-and for each sub-entity $S \in \text{faces}(\Delta^d) \cup \text{interior}(\Delta^d)$,
+and for each sub-entity $S \in \text{faces}(\Khat) \cup \text{interior}(\Khat)$,
 \begin{align}
    \ell^{S,0}_j(v) &= (\grad_S\phi^S_j, v)_{S}, \\
    \ell^{S,1}_j(v) &= (\curl_S\Phi^S_j, \curl_S v)_{S}, \label{eq:hcurl-interior-dofs}
@@ -374,11 +390,11 @@ $p_F=p$ gives the Brezzi--Douglas--Marini space $\BDM_p(K) = [\P_p(K)]^d$.
 These spaces enforce continuity of the normal trace across mesh interfaces.
 
 We define a basis for the dual of $V^2_{p, p_F}(K)$ as normal moments on $F\in
-\text{faces}(\Delta^d)$,
+\text{faces}(\Khat)$,
 \begin{equation}
    \ell^F_j(v) = (q_j, v\cdot \bn)_F, \quad q_j \in \P_{p_F}(F),
 \end{equation}
-and on the $\text{interior}(\Delta^d) = K$: 
+and on the $\text{interior}(\Khat) = K$: 
 \begin{align}
    \ell^{K,0}_j(v) &= (\curl\Phi^K_j, v)_{K}, \\
    \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K}, \label{eq:hdiv-interior-dofs}
