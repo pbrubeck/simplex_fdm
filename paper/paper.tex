@@ -283,6 +283,41 @@ instead of the na\"ive $\mathcal{O}(p^{9})$.
 \section{Introduction} \label{sec:introduction}
 
 
+Main challenges, motivations
+\begin{itemize}
+\item In high-order FEM, the curse of dimensionality affects operator
+   evaluation and relaxation methods in multigrid and domain-decomposition.  
+\item For tensor product cells,
+   a tensor product basis will expose the structure to decouple the
+   multidimensional problems into a sequence of one-dimensional problems.
+   Sum-factorization enables fast operator evaluation, and the fast
+   diagonalization method addresses the efficient solution of problems
+   structured subdomains.  On unstructured subdomains, an optimal strategy
+   using static condensation with FDM bases was proposed in our previous
+   work.
+\item For simplices, Bernstein--Bezier expansions enable sum-factorized
+   operator evaluation, but there is no knowledge of basis transformation
+   that can diagonalize a problem on any structured or unstructured subdomain.
+\end{itemize}
+
+
+Other approaches
+\begin{itemize}
+\item Low-order-refined preconditioning, not fully understood/far from optimal.
+\item Sparse hierarchical bases from Beuchler \& Schoberl constructed from integrated Jacobi polynomials. 
+   These bases still couple interior DOFs, making static condensation difficult.
+\end{itemize}
+
+
+Our approach, main solver design ingredients:
+\begin{itemize}
+\item Construction of degrees of freedom that promote sparsity in the reference element, 
+   which in turn increases the efficiency of block preconditioners/decoupling strategies. The key idea is
+      to use the degrees of freedom proposed by Demkowicz with eigenbases for the space of bubbles on each subentity.
+\item Construction of space decompositions around small subdomains constructed around vertices and edges.
+\end{itemize}
+
+
 
 \section{Sparsity-promoting discretizations} \label{sec:dofs}
 
