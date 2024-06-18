@@ -296,7 +296,7 @@ Main challenges, motivations
    using static condensation with FDM bases was proposed in our previous
    work.
 \item For simplices, Bernstein--Bezier expansions enable sum-factorized
-   operator evaluation, but there is no knowledge of basis transformation
+   operator evaluation, but there is no knowledge of a basis transformation
    that can diagonalize a problem on any structured or unstructured subdomain.
 \end{itemize}
 
@@ -340,7 +340,7 @@ We discretize the $\Ltwo$ de Rham complex on triangular and tetrahedral meshes w
 For each finite element subcomplex built on a mesh $\mesh$ of a domain $\Omega \subset \mathbb{R}^d$, we denote the spaces discretizing $k$-forms $H\Lambda^k(\Omega)$ with polynomial degree $p$ as $X^k_p(\mesh)$.
 These are built from cellwise spaces via the standard pullback construction from a reference cell $\Khat$:
 \begin{equation}
-X^k_p(\mesh) = \{ v \in H\Lambda^k(\Omega): \Forall K \in \mesh \Exists \hat{v} \in X^k_p(\Khat) \text{ s.t.} \left.v\right|_K = \pullback^k_K(\hat{v}) \},
+X^k_{h,p} = X^k_p(\mesh) = \{ v \in H\Lambda^k(\Omega): \Forall K \in \mesh \Exists \hat{v} \in X^k_p(\Khat) \text{ s.t.} \left.v\right|_K = \pullback^k_K(\hat{v}) \},
 \end{equation}
 where $\pullback^k_K$ denotes the appropriate pullback that preserves continuity of the traces of a $k$-form across cell facets.
 
@@ -386,14 +386,14 @@ on the reference interval, triangle, and tetrahedron.
 
 Recall the definition of the $\Hcurl$-conforming finite element spaces
 \begin{equation}
-V^1_{p, p_E}(K) = \{v\in [\P_p(K)]^d : v\cdot\bt \in \P_{p_E}(E) \}
+   X^1_{p, p_E}(K) = \{v\in [\P_p(K)]^d : \tr v \in \P_{p_E}(E) \Forall E \in \text{edges}(K)  \}
 \end{equation}
 for $p_E=p-1$ we obtain the \Nedelec space of the first kind $\Ned_p(K)$, while
 $p_E=p$ gives the \Nedelec space of the second kind $\NedTwo_p(K) = [\P_p(K)]^d$. 
 These spaces enforce continuity of the tangential trace across mesh interfaces.
 
 
-We define a basis for the dual of $V^1_{p, p_E}(K)$ as 
+We define a basis for the dual of $X^1_{p, p_E}(K)$ as 
 tangential moments along $E\in \text{edges}(\Khat)$,
 \begin{equation}
    \ell^E_j(v) = (q_j, v\cdot \bt)_E, \quad q_j \in \P_{p_E}(E), 
@@ -404,13 +404,12 @@ and for each sub-entity $S \in \text{faces}(\Khat) \cup \text{interior}(\Khat)$,
    \ell^{S,1}_j(v) &= (\curl_S\Phi^S_j, \curl_S v)_{S}, \label{eq:hcurl-interior-dofs}
 \end{align}
 where $\curl_S$ is the tangential curl on $S$,
-$\{\phi^S_j\}$ are the $H_0(\grad, S)$ bases constructed in \eqref{eq:hgrad-fdm},
-and $\{\curl_S\Phi^S_j\}$ is a basis for $\curl_S \mathbb{B}_{p_S}(\curl, S)$
+$\{\phi^S_j\}$ are the $B^0_{p_S}(S)$ bases constructed in \eqref{eq:hgrad-fdm},
+and $\{\curl_S\Phi^S_j\}$ is a basis for $\curl_S B^1_{p_S}(S)$
 such that
 \begin{equation} \label{eq:hcurl-fdm}
    (\curl_S\Phi^S_j, \curl_S\Phi^S_i)_{S} = \delta_{ij}, \quad
-   (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}, \quad
-   \Phi^S_j\times\bn = 0 \text{ on }\partial S.
+   (\Phi^S_j, \Phi^S_i)_{S} = \lambda_j\delta_{ij}.
 \end{equation}
 
 
@@ -418,13 +417,13 @@ such that
 
 Recall the definition of the $\Hdiv$-conforming finite element spaces
 \begin{equation}
-V^2_{p, p_F}(K) = \{v\in [\P_p(K)]^d : v\cdot\bn \in \P_{p_F}(F) \}
+   X^2_{p, p_F}(K) = \{v\in [\P_p(K)]^d : \tr v \in \P_{p_F}(F) \Forall F \in \text{faces}(K)  \}
 \end{equation}
 for $p_F=p-1$ we obtain the Raviart--Thomas space $\RT_p(K)$, while
 $p_F=p$ gives the Brezzi--Douglas--Marini space $\BDM_p(K) = [\P_p(K)]^d$. 
 These spaces enforce continuity of the normal trace across mesh interfaces.
 
-We define a basis for the dual of $V^2_{p, p_F}(K)$ as normal moments on $F\in
+We define a basis for the dual of $X^2_{p, p_F}(K)$ as normal moments on $F\in
 \text{faces}(\Khat)$,
 \begin{equation}
    \ell^F_j(v) = (q_j, v\cdot \bn)_F, \quad q_j \in \P_{p_F}(F),
@@ -434,13 +433,11 @@ and on the $\text{interior}(\Khat) = K$:
    \ell^{K,0}_j(v) &= (\curl\Phi^K_j, v)_{K}, \\
    \ell^{K,1}_j(v) &= (\div\Psi^K_j, \div v)_{K}, \label{eq:hdiv-interior-dofs}
 \end{align}
-where $\{\Phi^K_j\}$ are the $H_0(\curl, S)$ bases constructed in
-\eqref{eq:hcurl-fdm}, and $\{\div\Psi^K_j\}$ is a basis for $\div
-\mathbb{B}_p(\div, K)$ such that
+where $\{\Phi^K_j\}$ are the $B^1_p(K)$ bases constructed in
+\eqref{eq:hcurl-fdm}, and $\{\div\Psi^K_j\}$ is a basis for $\div B^2_p(K)$ such that
 \begin{equation} \label{eq:hdiv-fdm}
    (\div\Psi^K_j, \div\Psi^K_i)_K = \delta_{ij}, \quad
-   (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}, \quad
-   \Psi^K_j\cdot\bn = 0 \text{ on }\partial K.
+   (\Psi^K_j, \Psi^K_i)_{K} = \lambda_j\delta_{ij}.
 \end{equation}
 
 
@@ -467,22 +464,22 @@ and extend them to high-order with static-condensation.
 
 For 0-forms we construct patches on vertex-stars,
 \begin{equation}
-   V^0_{h,p} = \left.V^0_{h,p}\right|_\mathcal{I} + V^0_{h,1} 
-   + \sum_{v\in E^0(\mesh)} \left.\tilde{V}^0_{h,p}\right|_{\star v} 
+   X^0_{h,p} = \left.X^0_{h,p}\right|_\mathcal{I} + X^0_{h,1} 
+   + \sum_{v\in E^0(\mesh)} \left.\tilde{X}^0_{h,p}\right|_{\star v} 
 \end{equation}
 
 For 1-forms we construct edge-star patches
 plus the gradient of vertex-star patches on 0-forms
 \begin{equation}
-   V^1_{h,p} = \left.V^1_{h,p}\right|_\mathcal{I} +  V^1_{h,1}
-   + \sum_{e\in E^1(\mesh)} \left.\tilde{V}^1_{h,p}\right|_{\star e} 
-   + \sum_{v\in E^0(\mesh)} \mathrm{d} \left.\tilde{V}^0_{h,p}\right|_{\star v} 
+   X^1_{h,p} = \left.X^1_{h,p}\right|_\mathcal{I} +  X^1_{h,1}
+   + \sum_{e\in E^1(\mesh)} \left.\tilde{X}^1_{h,p}\right|_{\star e} 
+   + \sum_{v\in E^0(\mesh)} \mathrm{d} \left.\tilde{X}^0_{h,p}\right|_{\star v} 
 \end{equation}
 
 For 2-forms we construct edge-star patches,
 \begin{equation}
-   V^2_{h,p} = \left.V^2_{h,p}\right|_\mathcal{I} +  V^2_{h,1} 
-   + \sum_{e\in E^1(\mesh)} \left.\tilde{V}^2_{h,p}\right|_{\star e}. 
+   X^2_{h,p} = \left.X^2_{h,p}\right|_\mathcal{I} +  X^2_{h,1} 
+   + \sum_{e\in E^1(\mesh)} \left.\tilde{X}^2_{h,p}\right|_{\star e}. 
 \end{equation}
 
 
