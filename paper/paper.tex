@@ -252,7 +252,7 @@ $H(\mathrm{d})$-inner products ($\mathrm{d} \in \{\mathrm{grad},
 On the reference equilateral simplex, the
 resulting stiffness matrix has diagonal interior block, and does not couple
 together the interior and interface degrees of freedom. Thus, on the
-reference simplex, the Schur complement resulting from elimination of
+reference simplex, the Schur complement resulting from the elimination of
 interior degrees of freedom is simply the interface block itself. This
 sparsity is not preserved on arbitrary cells mapped from the reference cell.
 Nevertheless, the interior-interface coupling is weak because it is only
@@ -282,6 +282,14 @@ instead of the na\"ive $\mathcal{O}(p^{9})$.
 
 \section{Introduction} \label{sec:introduction}
 
+High-order finite element discretizations have very attractive properties, such as rapid convergence and higher arithmetic intensity. However, their implementation requires great care, as na\"ive approaches to operator evaluation and linear system solution can scale badly in terms of memory and floating-point operations (flops) as the polynomial degree $p$ increases. On a single $d$-dimensional cell, the number of degrees of freedom scales like $p^d$; computing the $\mathcal{O}(p^{2d})$ entries of a dense stiffness matrix with standard Lagrange-type elements would cost $\mathcal{O}(p^{3d})$ flops. Making high-order discretizations competitive therefore requires better algorithms.
+
+For tensor-product cells (quadrilaterals and hexahedra), a tensor-product basis naturally exposes the required structure to decouple multidimensional problems into a sequence of one-dimensional problems, reducing computational cost and storage. For example, the sum-factorization assembly strategy enables fast matrix-free operator evaluation in $\mathcal{O}(p^{d+1})$ operations and $\mathcal{O}(p^{d})$ storage~\cite{orszag80}, and the fast diagonlization method (FDM) addresses the solution of separable problems on structured domains with the same complexities~\cite{lynch64}. The previous work of the first two authors employing FDM-inspired finite element bases with suitable space decompositions yields the solution of certain separable and non-separable problems on unstructured domains with the same complexities~\cite{brubeck22,brubeck23}.
+
+Achieving similar computational complexities on simplices is more challenging. Bernstein--B\'ezier expansions enable sum-factorized matrix-free operator evaluation in $\mathcal{O}(p^{d+1})$ operations and $\mathcal{O}(p^{d})$ storage~\cite{ainsworthXX}, but there is no known analogue of an FDM approach that solves the linear systems arising from separable problems with these complexities. This manuscript makes a step towards addressing this challenge.
+
+The essential idea of our approach is to devise new finite elements for the $L^2$ de Rham complex that promote sparsity in the reference
+element, in a similar spirit to~\cite{brubeck23}. On the reference cell, the interior and interface degrees of freedom are decoupled; on generally mapped cells, they are only coupled by the geometric transformation, and hence for suitably-shaped cells the coupling is weak. This increases the efficiency of block preconditioning strategies that decouple the interface and interior degrees of freedom. This reference cell sparsity is achieved by employing the framework of Demkowicz et al.~\cite{demkowicz00}, by making a clever choice for bases of bubble spaces that arise in the construction of the degrees of freedom. The bases for the bubble spaces are constructed by solving a handful of offline eigenproblems on the reference cell for each polynomial degree $p$. This combination of finite elements and block preconditioning strategy solves the Riesz maps of the $L^2$ de Rham complex in $\mathcal{O}(p^{3(d-1)})$ operations and $\mathcal{O}(p^{2(d-1)})$ storage; worse than the optimal complexities achieved on tensor-product cells, but orders of magnitude better than previously available approaches [FIXME is this true].
 
 Main challenges, motivations
 \begin{itemize}
