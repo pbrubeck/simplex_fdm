@@ -464,10 +464,19 @@ far the element departs from being equilateral, i.e., the shape regularity param
 
 
 \section{Design of preconditioners}
+In this section we desribe the solver components and their computational complexities.
 
 
+\begin{itemize}
+\item The bases described above present weak coupling between the interior and facet degrees of freedom.
+\item We propose a block diagonal preconditioner that only assembles the facet block, and only requires the diagonal entries of the interior block.
+\item The Krylov solver only requires matrix-free operation evaluation and preconditioner application. It is not evident that these bases expose structure for sum-factorization as the Bernstein--Bezier bases, hence operator application requires $\bigo{p^{2d}}$ flops and $\bigo{p^{2d}}$ storage. The storage cost here comes from tabulating the basis and its derivatives onto the quadrature points on the reference cell and does not scale with the number of cells.
+\item The facet cell submatrices have $\bigo{p^{2(d-1)}}$ entries, and cost $\bigo{p^{3(d-1)}}$ flops to assemble. 
+The solution of a patch problem on the facets involves the factorization of the patch matrix, which requires $\bigo{p^{2(d-1)}}$ storage and $\bigo{p^{3(d-1)}}$ flops top compute, solving the patch subproblems at each Krylov iteration incurs $\bigo{p^{2(d-1)}}$ flops per patch. 
+\item In three dimensions the costs of operator application and preconditioner setup and application balance to $\bigo{p^6}$ flops and $\bigo{p^4}$ storage.
+\end{itemize}
 
-
+\subsection{Choice of space decompositions}
 We follow 
 the low-order space decompositions studied in \cite{arnold00}
 and extend them to high-order with static-condensation.
@@ -494,7 +503,7 @@ For 2-forms we construct edge-star patches,
 
 
 
-\begin{figure}
+\begin{figure}[htbp]
 \footnotesize
 \centering
 \begin{tikzpicture}[%
