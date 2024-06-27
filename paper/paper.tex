@@ -463,7 +463,9 @@ far the element departs from being equilateral, i.e., the shape regularity param
 
 
 
-\section{Space decompositions}
+\section{Design of preconditioners}
+
+
 
 
 We follow 
@@ -490,6 +492,32 @@ For 2-forms we construct edge-star patches,
    + \sum_{e\in E^1(\mesh)} \left.\tilde{X}^2_{h,p}\right|_{\star e}. 
 \end{equation}
 
+
+
+\begin{figure}
+\footnotesize
+\centering
+\begin{tikzpicture}[%
+ every node/.style={draw=black, thick, anchor=west},
+grow via three points={one child at (-0.0,-0.7) and
+	two children at (0.0,-0.7) and (0.0,-1.4)},
+edge from parent path={(\tikzparentnode.210) |- (\tikzchildnode.west)}]
+\node {KSP: Conjugate Gradients}
+   child {node {PC: Two-level vertex-star additive Schwarz}
+   child {node {$p$-fine: Interior-facet additive decomposition}
+      child {node {Interior: point-Jacobi}}
+      child {node {Facet: vertex-star patches}}
+   }
+   child[missing]{}
+   child[missing]{}
+   child {node {$p$-coarse ($p=1$): Cholesky}
+      %child {node {Relaxation: Hiptmair--Jacobi}}
+      %child {node {$h$-coarse: Cholesky}}
+   }
+};
+\end{tikzpicture}
+\caption{Solver diagram for $\Hgrad$ using the interior-facet decomposition.}
+\end{figure}
 
 
 \section{Numerical results} \label{sec:results}
